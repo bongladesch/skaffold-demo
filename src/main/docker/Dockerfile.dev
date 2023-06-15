@@ -1,0 +1,14 @@
+FROM maven:3.9.2-amazoncorretto-17-debian-bullseye
+
+RUN adduser --home /home/quarkus --uid 9999 --gid 0 quarkus
+
+USER quarkus
+WORKDIR /home/quarkus
+ENV MAVEN_CONFIG=/home/quarkus/.m2
+
+COPY --chown=9999:0 pom.xml /home/quarkus/
+COPY --chown=9999:0 src /home/quarkus/src
+
+RUN mvn -Duser.home=/home/quarkus clean compile dependency:go-offline dependency:resolve-plugins
+
+CMD ["mvn", "-Duser.home=/home/quarkus", "-Dquarkus.http.host=0.0.0.0", "compile", "quarkus:dev"]
