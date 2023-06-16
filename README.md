@@ -1,60 +1,55 @@
 # skaffold-demo
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+This project shows a demo how you can use Skaffold for a local and CI/CD development flow.
+It uses Docker to build images, the sync functionality to keep sources in sync during dev mode and Kustomize for deployment configuration.
 
+If you want to learn more about Skaffold, please visit its website: https://kustomize.io/ .
+
+This project uses Quarkus, the Supersonic Subatomic Java Framework.
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+
+## Prerequisites
+
+The following tools must be installed before running this demo:
+
+* `kubectl`
+* `skaffold`
+
+Also, you need to a remote k8s cluster (e.g. Minikube, AKS, EKS etc.) and configure your `kubectl` to this cluster.
+
+In order to build and push on a remote k8s cluster you need to store your local and authenticated Docker config.json as a Secret in the namespace `build`:
+
+```shell script
+kubectl -n build create secret generic docker-config --from-file=/path/to/your/config.json
+```
 
 ## Running the application in dev mode
 
-You can run your application in dev mode that enables live coding using:
+You can run your application in dev mode that enables live coding with Skaffold on a remote cluster using:
 ```shell script
-./mvnw compile quarkus:dev
+skaffold dev -p dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+> **_NOTE:_** The application will be available at: http://localhost:8080/hello
 
-## Packaging and running the application
+> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/
 
-The application can be packaged using:
+## Packaging and deploying the application to STAGE
+
+The application can be packaged and deployed to stage using:
+
 ```shell script
-./mvnw package
-```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+skaffold run -p stage
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+> **_Note:_** Ensure the environment variable `VERSION` is set to the desired Docker image tag
 
-## Creating a native executable
+> **_Note:_** The application is now available at http://localhost/hello
 
-You can create a native executable using: 
-```shell script
-./mvnw package -Pnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/skaffold-demo-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
+> **_Note:_** You can provide the option `--tail` to follow the logs of the deployment.
 
 ## Related Guides
 
-- RESTEasy Reactive ([guide](https://quarkus.io/guides/resteasy-reactive)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-
-## Provided Code
-
-### RESTEasy Reactive
-
-Easily start your Reactive RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+- Skaffold: [Guides](https://skaffold.dev/docs/workflows/)
+- Kustomize: [Guides](https://kubectl.docs.kubernetes.io/)
+- Quarkus [Guides](https://quarkus.io/guides/)

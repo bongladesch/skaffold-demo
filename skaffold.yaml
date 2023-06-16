@@ -1,0 +1,42 @@
+# nonk8s
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: skaffold-demo
+build:
+  cluster:
+    dockerConfig:
+      secretName: docker-config
+    namespace: build
+  artifacts:
+    - image: bongladesch/skaffold-demo
+      kaniko:
+        dockerfile: src/main/docker/Dockerfile.jvm
+
+profiles:
+  - name: dev
+    manifests:
+      kustomize:
+        paths:
+          - src/main/kustomize/overlays/dev
+    build:
+      artifacts:
+        - image: bongladesch/skaffold-demo
+          kaniko:
+            dockerfile: src/main/docker/Dockerfile.dev
+          sync:
+            infer: [ "**/*.java" ]
+    portForward:
+      - resourceType: Service
+        resourceName: dev-skaffold-demo
+        port: 8080
+        localPort: 8080
+  - name: stage
+    build:
+      tagPolicy:
+        envTemplate:
+          template: "{{.VERSION}}"
+    manifests:
+      kustomize:
+        paths:
+          - src/main/kustomize/overlays/stage
