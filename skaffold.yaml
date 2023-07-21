@@ -12,6 +12,10 @@ build:
     - image: bongladesch/skaffold-demo
       kaniko:
         dockerfile: src/main/docker/Dockerfile.jvm
+manifests:
+  kustomize:
+    paths:
+      - src/main/kustomize/base
 
 profiles:
   - name: dev
